@@ -1,4 +1,6 @@
 image: "rustlang/rust:nightly"
+variables:
+    CARGO_HOME: $CI_PROJECT_DIR/cargo
 
 stages:
     - build
@@ -17,6 +19,10 @@ build:linux:
     stage: build
     script:
         - make all
+    cache:
+        paths:
+            - cargo/
+            - target/
 
 build:redox:
     stage: build
@@ -34,6 +40,11 @@ build:redox:
 
         # Main script
         - make all
+    cache:
+        paths:
+            - cargo/
+            - target/
+
 
 test:linux:
     stage: test
