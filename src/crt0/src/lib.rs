@@ -19,10 +19,19 @@ use platform::types::*;
 #[no_mangle]
 #[naked]
 pub unsafe extern "C" fn _start() {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_arch = "x86_64", not(target_os = "macos")))]
     asm!("mov rdi, rsp
         and rsp, 0xFFFFFFFFFFFFFFF0
         call _start_rust"
+        :
+        :
+        :
+        : "intel", "volatile"
+    );
+    #[cfg(all(target_arch = "x86_64", target_os = "macos"))]
+    asm!("mov rdi, rsp
+        and rsp, 0xFFFFFFFFFFFFFFF0
+        call __start_rust"
         :
         :
         :

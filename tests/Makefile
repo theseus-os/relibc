@@ -123,6 +123,8 @@ CFLAGS=\
 	-I ../target/include \
 	-I ../target/openlibm/include \
 	-I ../target/openlibm/src \
+	-Wl,-static \
+	-Wl,-e -Wl,__start \
 
 HEADLIBS=\
 	../target/debug/crt0.o

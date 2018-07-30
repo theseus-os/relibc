@@ -6,7 +6,7 @@
 extern crate errno;
 extern crate platform;
 
-#[cfg(target_os = "linux")]
+#[cfg(not(target_os = "redox"))]
 #[path = "linux.rs"]
 pub mod sys;
 

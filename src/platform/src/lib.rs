@@ -2,11 +2,12 @@
 #![allow(non_camel_case_types)]
 #![feature(alloc, allocator_api, const_vec_new)]
 #![cfg_attr(target_os = "redox", feature(thread_local))]
+#![cfg_attr(target_os = "macos", feature(asm))]
 
 #[cfg_attr(target_os = "redox", macro_use)]
 extern crate alloc;
 
-#[cfg(all(not(feature = "no_std"), target_os = "linux"))]
+#[cfg(all(not(feature = "no_std"), not(target_os = "redox")))]
 #[macro_use]
 extern crate sc;
 
@@ -27,6 +28,10 @@ pub use sys::*;
 
 #[cfg(all(not(feature = "no_std"), target_os = "linux"))]
 #[path = "linux/mod.rs"]
+mod sys;
+
+#[cfg(all(not(feature = "no_std"), target_os = "macos"))]
+#[path = "macos/mod.rs"]
 mod sys;
 
 #[cfg(all(not(feature = "no_std"), target_os = "redox"))]

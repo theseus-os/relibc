@@ -8,8 +8,8 @@ path = "../../ralloc"
 default-features = false
 optional = true
 
-[target.'cfg(target_os = "linux")'.dependencies]
-sc = "0.2"
+[target.'cfg(not(target_os = "redox"))'.dependencies]
+sc = { git = "https://github.com/NilSet/syscall.rs", branch = "macos-syscall-class" }
 
 [target.'cfg(target_os = "redox")'.dependencies]
 redox_syscall = "0.1"

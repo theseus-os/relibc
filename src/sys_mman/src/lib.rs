@@ -6,7 +6,7 @@ use platform::types::*;
 
 pub use sys::*;
 
-#[cfg(target_os = "linux")]
+#[cfg(not(target_os = "redox"))]
 #[path = "linux.rs"]
 pub mod sys;
 
@@ -24,7 +24,7 @@ pub extern "C" fn mlockall(flags: c_int) -> c_int {
     unimplemented!();
 }
 
-// #[no_mangle]
+#[no_mangle]
 pub extern "C" fn mmap(
     addr: *mut c_void,
     len: usize,
@@ -33,7 +33,7 @@ pub extern "C" fn mmap(
     fildes: c_int,
     off: off_t,
 ) -> *mut c_void {
-    unimplemented!();
+    platform::mmap(addr, len, prot, flags, fildes, off)
 }
 
 // #[no_mangle]
@@ -56,9 +56,9 @@ pub extern "C" fn munlockall() -> c_int {
     unimplemented!();
 }
 
-// #[no_mangle]
+#[no_mangle]
 pub extern "C" fn munmap(addr: *mut c_void, len: usize) -> c_int {
-    unimplemented!();
+    platform::munmap(addr, len)
 }
 
 // #[no_mangle]
