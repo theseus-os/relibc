@@ -14,6 +14,8 @@
 #![feature(str_internals)]
 #![feature(thread_local)]
 
+#![allow(clippy::cast_ptr_alignment)]
+
 #[macro_use]
 extern crate alloc;
 extern crate cbitset;

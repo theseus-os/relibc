@@ -117,7 +117,7 @@ pub extern "C" fn clock() -> clock_t {
         return -1;
     }
 
-    return ts.tv_sec * CLOCKS_PER_SEC + ts.tv_nsec / (1_000_000_000 / CLOCKS_PER_SEC);
+    ts.tv_sec * CLOCKS_PER_SEC + ts.tv_nsec / (1_000_000_000 / CLOCKS_PER_SEC)
 }
 
 // #[no_mangle]
@@ -321,9 +321,9 @@ pub unsafe extern "C" fn strftime(
         timeptr,
     );
     if ret < maxsize {
-        return ret;
+        ret
     } else {
-        return 0;
+        0
     }
 }
 

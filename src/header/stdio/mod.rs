@@ -367,15 +367,15 @@ pub unsafe extern "C" fn flockfile(file: *mut FILE) {
 
 /// Open the file in mode `mode`
 #[no_mangle]
-pub extern "C" fn fopen(filename: *const c_char, mode: *const c_char) -> *mut FILE {
+pub unsafe extern "C" fn fopen(filename: *const c_char, mode: *const c_char) -> *mut FILE {
     use core::ptr;
-    let initial_mode = unsafe { *mode };
+    let initial_mode = *mode;
     if initial_mode != b'r' as i8 && initial_mode != b'w' as i8 && initial_mode != b'a' as i8 {
-        unsafe { platform::errno = errno::EINVAL };
+        platform::errno = errno::EINVAL;
         return ptr::null_mut();
     }
 
-    let flags = unsafe { helpers::parse_mode_flags(mode) };
+    let flags = helpers::parse_mode_flags(mode);
 
     let new_mode = if flags & fcntl::O_CREAT == fcntl::O_CREAT {
         0o666
@@ -392,7 +392,7 @@ pub extern "C" fn fopen(filename: *const c_char, mode: *const c_char) -> *mut FI
         fcntl::sys_fcntl(fd, fcntl::F_SETFD, fcntl::FD_CLOEXEC);
     }
 
-    if let Some(f) = unsafe { helpers::_fdopen(fd, mode) } {
+    if let Some(f) = helpers::_fdopen(fd, mode) {
         f
     } else {
         Sys::close(fd);
@@ -435,15 +435,13 @@ pub extern "C" fn fread(
 }
 
 #[no_mangle]
-pub extern "C" fn freopen(
+pub unsafe extern "C" fn freopen(
     filename: *const c_char,
     mode: *const c_char,
     stream: &mut FILE,
 ) -> *mut FILE {
-    let mut flags = unsafe { helpers::parse_mode_flags(mode) };
-    unsafe {
-        flockfile(stream);
-    }
+    let mut flags = helpers::parse_mode_flags(mode);
+    flockfile(stream);
 
     let _ = stream.flush();
     if filename.is_null() {
@@ -453,18 +451,14 @@ pub extern "C" fn freopen(
         }
         flags &= !(fcntl::O_CREAT | fcntl::O_EXCL | fcntl::O_CLOEXEC);
         if fcntl::sys_fcntl(*stream.file, fcntl::F_SETFL, flags) < 0 {
-            unsafe {
-                funlockfile(stream);
-            }
+            funlockfile(stream);
             fclose(stream);
             return ptr::null_mut();
         }
     } else {
         let new = fopen(filename, mode);
         if new.is_null() {
-            unsafe {
-                funlockfile(stream);
-            }
+            funlockfile(stream);
             fclose(stream);
             return ptr::null_mut();
         }
@@ -474,9 +468,7 @@ pub extern "C" fn freopen(
         } else if Sys::dup2(*new.file, *stream.file) < 0
             || fcntl::sys_fcntl(*stream.file, fcntl::F_SETFL, flags & fcntl::O_CLOEXEC) < 0
         {
-            unsafe {
-                funlockfile(stream);
-            }
+            funlockfile(stream);
             fclose(new);
             fclose(stream);
             return ptr::null_mut();
@@ -484,9 +476,7 @@ pub extern "C" fn freopen(
         stream.flags = (stream.flags & constants::F_PERM) | new.flags;
         fclose(new);
     }
-    unsafe {
-        funlockfile(stream);
-    }
+    funlockfile(stream);
     stream
 }
 

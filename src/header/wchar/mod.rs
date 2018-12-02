@@ -11,7 +11,7 @@ use platform::types::*;
 
 mod utf8;
 
-const WEOF: wint_t = 0xFFFFFFFFu32;
+const WEOF: wint_t = 0xFFFF_FFFFu32;
 
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -34,7 +34,7 @@ pub unsafe extern "C" fn btowc(c: c_int) -> wint_t {
         platform::errno = saved_errno;
         return WEOF;
     }
-    return wc as wint_t;
+    wc as wint_t
 }
 
 #[no_mangle]
@@ -103,9 +103,9 @@ pub unsafe extern "C" fn mbrtowc(
     }
     if s.is_null() {
         let xs: [c_char; 1] = [0];
-        return utf8::mbrtowc(pwc, &xs[0] as *const c_char, 1, ps);
+        utf8::mbrtowc(pwc, &xs[0] as *const c_char, 1, ps)
     } else {
-        return utf8::mbrtowc(pwc, s, n, ps);
+        utf8::mbrtowc(pwc, s, n, ps)
     }
 }
 
@@ -171,7 +171,7 @@ pub unsafe extern "C" fn mbsnrtowcs(
     }
 
     *src_ptr = src.offset(src_offset as isize);
-    return dst_offset;
+    dst_offset
 }
 
 //Convert a multibyte string to a wide string

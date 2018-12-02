@@ -60,10 +60,8 @@ unsafe fn inner_scanf<R: Read>(
             maybe_read!(inner);
         };
         (inner $($placeholder:expr)*) => {
-            if !skip_read {
-                if !read!() {
-                    return Ok(matched);
-                }
+            if !skip_read && !read!() {
+                return Ok(matched);
             }
             $(else {
                 // Hacky way of having this optional
@@ -205,10 +203,8 @@ unsafe fn inner_scanf<R: Read>(
                             {
                                 radix = 16;
                                 width = width.map(|w| w - 1);
-                                if width.map(|w| w > 0).unwrap_or(true) {
-                                    if !read!() {
-                                        break;
-                                    }
+                                if width.map(|w| w > 0).unwrap_or(true) && !read!() {
+                                    break;
                                 }
                             }
                             continue;
@@ -219,10 +215,8 @@ unsafe fn inner_scanf<R: Read>(
                         }
                         n.push(byte as char);
                         width = width.map(|w| w - 1);
-                        if width.map(|w| w > 0).unwrap_or(true) {
-                            if !read!() {
-                                break;
-                            }
+                        if width.map(|w| w > 0).unwrap_or(true) && !read!() {
+                            break;
                         }
                     }
 
@@ -340,10 +334,8 @@ unsafe fn inner_scanf<R: Read>(
                             *ptr = ptr.offset(1);
                         }
                         width = width.map(|w| w - 1);
-                        if width.map(|w| w > 0).unwrap_or(true) {
-                            if !read!() {
-                                break;
-                            }
+                        if width.map(|w| w > 0).unwrap_or(true) && !read!() {
+                            break;
                         }
                     }
 
@@ -360,10 +352,8 @@ unsafe fn inner_scanf<R: Read>(
                             *ptr.offset(i as isize) = byte as c_char;
                         }
                         width = width.map(|w| w - 1);
-                        if width.map(|w| w > 0).unwrap_or(true) {
-                            if !read!() {
-                                break;
-                            }
+                        if width.map(|w| w > 0).unwrap_or(true) && !read!() {
+                            break;
                         }
                     }
 
@@ -414,10 +404,8 @@ unsafe fn inner_scanf<R: Read>(
                             *ptr = ptr.offset(1);
                         }
                         width = width.map(|w| w - 1);
-                        if width.map(|w| w > 0).unwrap_or(true) {
-                            if !read!() {
-                                break;
-                            }
+                        if width.map(|w| w > 0).unwrap_or(true) && !read!() {
+                            break;
                         }
                     }
 

@@ -23,7 +23,7 @@ pub unsafe extern "C" fn basename(str: *mut c_char) -> *mut c_char {
         begin -= 1;
     }
     *str.offset(end + 1) = 0;
-    return str.offset(begin + 1) as *mut c_char;
+    str.offset(begin + 1) as *mut c_char
 }
 
 #[no_mangle]
@@ -45,5 +45,5 @@ pub unsafe extern "C" fn dirname(str: *mut c_char) -> *mut c_char {
         return ".\0".as_ptr() as *mut c_char;
     }
     *str.offset(end + 1) = 0;
-    return str;
+    str
 }

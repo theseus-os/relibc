@@ -403,7 +403,7 @@ pub unsafe extern "C" fn strcasestr(haystack: *const c_char, needle: *const c_ch
 pub extern "C" fn strtok(s1: *mut c_char, delimiter: *const c_char) -> *mut c_char {
     static mut HAYSTACK: *mut c_char = ptr::null_mut();
     unsafe {
-        return strtok_r(s1, delimiter, &mut HAYSTACK);
+        strtok_r(s1, delimiter, &mut HAYSTACK)
     }
 }
 
@@ -441,7 +441,7 @@ pub extern "C" fn strtok_r(
             *lasts = ptr::null_mut();
         }
 
-        return token;
+        token
     }
 }
 

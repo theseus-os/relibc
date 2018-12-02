@@ -23,7 +23,7 @@ mod sort;
 
 pub const EXIT_FAILURE: c_int = 1;
 pub const EXIT_SUCCESS: c_int = 0;
-pub const RAND_MAX: c_int = 2147483647;
+pub const RAND_MAX: c_int = 2_147_483_647;
 
 //Maximum number of bytes in a multibyte character for the current locale
 pub const MB_CUR_MAX: c_int = 4;
@@ -57,7 +57,7 @@ pub unsafe extern "C" fn a64l(s: *const c_char) -> c_long {
         bits <<= 6 * x;
         l |= bits;
     }
-    return l;
+    l
 }
 
 #[no_mangle]
@@ -145,7 +145,7 @@ pub extern "C" fn atol(s: *const c_char) -> c_long {
 }
 
 unsafe extern "C" fn void_cmp(a: *const c_void, b: *const c_void) -> c_int {
-    return *(a as *const i32) - *(b as *const i32) as c_int;
+    *(a as *const i32) - *(b as *const i32) as c_int
 }
 
 #[no_mangle]
@@ -452,12 +452,11 @@ where
 pub extern "C" fn mktemp(name: *mut c_char) -> *mut c_char {
     if inner_mktemp(name, 0, || unsafe {
         let name = CStr::from_ptr(name);
-        let ret = if Sys::access(name, 0) != 0 && platform::errno == ENOENT {
+        if Sys::access(name, 0) != 0 && platform::errno == ENOENT {
             Some(())
         } else {
             None
-        };
-        ret
+        }
     })
     .is_none()
     {
@@ -481,7 +480,7 @@ pub extern "C" fn mkostemps(name: *mut c_char, suffix_len: c_int, mut flags: c_i
 
     inner_mktemp(name, suffix_len, || {
         let name = unsafe { CStr::from_ptr(name) };
-        let fd = Sys::open(name, flags, 0600);
+        let fd = Sys::open(name, flags, 0o600);
 
         if fd >= 0 {
             Some(fd)

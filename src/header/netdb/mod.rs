@@ -472,7 +472,7 @@ pub unsafe extern "C" fn gethostbyaddr(
         }
         Err(e) => {
             platform::errno = e;
-            return ptr::null();
+            ptr::null()
         }
     }
 }
