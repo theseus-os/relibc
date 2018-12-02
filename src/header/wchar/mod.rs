@@ -135,14 +135,14 @@ pub unsafe extern "C" fn mbsnrtowcs(
         let mut wc: wchar_t = 0;
         let amount = mbrtowc(
             &mut wc,
-            src.offset(src_offset as isize),
+            src.add(src_offset),
             src_len - src_offset,
             ps,
         );
 
         // Stop in the event a decoding error occured.
         if amount == -1isize as usize {
-            *src_ptr = src.offset(src_offset as isize);
+            *src_ptr = src.add(src_offset);
             return 1isize as usize;
         }
 
@@ -154,7 +154,7 @@ pub unsafe extern "C" fn mbsnrtowcs(
 
         // Store the decoded wide character in the destination buffer.
         if !dst_ptr.is_null() {
-            *dst_ptr.offset(dst_offset as isize) = wc;
+            *dst_ptr.add(dst_offset) = wc;
         }
 
         // Stop decoding after decoding a null character and return a NULL
@@ -170,7 +170,7 @@ pub unsafe extern "C" fn mbsnrtowcs(
         src_offset += amount;
     }
 
-    *src_ptr = src.offset(src_offset as isize);
+    *src_ptr = src.add(src_offset);
     dst_offset
 }
 
@@ -249,13 +249,11 @@ pub extern "C" fn vswprintf(
 #[no_mangle]
 pub unsafe extern "C" fn wcrtomb(s: *mut c_char, wc: wchar_t, ps: *mut mbstate_t) -> size_t {
     let mut buffer: [c_char; MB_CUR_MAX as usize] = [0; MB_CUR_MAX as usize];
-    let mut wc_cpy = wc;
-    let mut s_cpy = s;
-
-    if s.is_null() {
-        wc_cpy = 0;
-        s_cpy = buffer.as_mut_ptr();
-    }
+    let (s_cpy, wc_cpy) = if s.is_null() {
+        (buffer.as_mut_ptr(), 0)
+    } else {
+        (s, wc)
+    };
 
     utf8::wcrtomb(s_cpy, wc_cpy, ps)
 }

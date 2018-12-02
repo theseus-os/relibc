@@ -128,9 +128,9 @@ pub unsafe extern "C" fn regexec(
     if !matches.is_empty() && eflags & REG_NOSUB != REG_NOSUB && !pmatch.is_null() && nmatch > 0 {
         let first = &matches[0];
 
-        for i in 0..nmatch as usize {
+        for i in 0..nmatch {
             let (start, end) = first.get(i).and_then(|&range| range).unwrap_or((!0, !0));
-            *pmatch.offset(i as isize) = regmatch_t {
+            *pmatch.add(i) = regmatch_t {
                 rm_so: start,
                 rm_eo: end,
             };

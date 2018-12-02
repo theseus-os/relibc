@@ -219,7 +219,7 @@ pub extern "C" fn getpwnam(name: *const c_char) -> *mut passwd {
             // /etc/passwd should not contain any NUL bytes in the middle
             // of entries, but if this happens, it can't possibly match the
             // search query since it's NUL terminated.
-            if *c == 0 || unsafe { *name.offset(i as isize) } != *c as c_char {
+            if *c == 0 || unsafe { *name.add(i) } != *c as c_char {
                 return false;
             }
         }

@@ -349,7 +349,7 @@ unsafe fn inner_scanf<R: Read>(
 
                     for i in 0..width.unwrap_or(1) {
                         if let Some(ptr) = ptr {
-                            *ptr.offset(i as isize) = byte as c_char;
+                            *ptr.add(i) = byte as c_char;
                         }
                         width = width.map(|w| w - 1);
                         if width.map(|w| w > 0).unwrap_or(true) && !read!() {

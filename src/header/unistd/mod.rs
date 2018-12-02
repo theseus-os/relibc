@@ -233,7 +233,7 @@ pub extern "C" fn getcwd(mut buf: *mut c_char, mut size: size_t) -> *mut c_char 
     }
 
     let ret = Sys::getcwd(buf, size);
-    if ret == ptr::null_mut() {
+    if ret.is_null() {
         return ptr::null_mut();
     }
 
@@ -246,7 +246,7 @@ pub extern "C" fn getcwd(mut buf: *mut c_char, mut size: size_t) -> *mut c_char 
         let heap_buf = unsafe { platform::alloc(len) as *mut c_char };
         for i in 0..len {
             unsafe {
-                *heap_buf.offset(i as isize) = stack_buf[i];
+                *heap_buf.add(i) = stack_buf[i];
             }
         }
         heap_buf

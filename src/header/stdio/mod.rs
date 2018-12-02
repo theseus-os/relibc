@@ -317,7 +317,7 @@ pub unsafe extern "C" fn fgets(original: *mut c_char, max: c_int, stream: *mut F
 
         stream.consume(read);
 
-        out = out.offset(read as isize);
+        out = out.add(read);
         left -= read;
 
         if exit {
@@ -850,7 +850,7 @@ pub extern "C" fn tempnam(_dir: *const c_char, _pfx: *const c_char) -> *mut c_ch
 
 #[no_mangle]
 pub unsafe extern "C" fn tmpfile() -> *mut FILE {
-    let mut file_name = *b"/tmp/tmpfileXXXXXX";
+    let mut file_name = *b"/tmp/tmpfileXXXXXX\0";
     let file_name = file_name.as_mut_ptr() as *mut c_char;
     let fd = stdlib::mkstemp(file_name);
 
@@ -858,7 +858,7 @@ pub unsafe extern "C" fn tmpfile() -> *mut FILE {
         return ptr::null_mut();
     }
 
-    let fp = fdopen(fd, b"w+".as_ptr() as *const i8);
+    let fp = fdopen(fd, c_str!("w+").as_ptr());
     {
         let file_name = CStr::from_ptr(file_name);
         Sys::unlink(file_name);
