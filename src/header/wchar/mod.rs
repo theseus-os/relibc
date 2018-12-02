@@ -176,13 +176,13 @@ pub unsafe extern "C" fn mbsnrtowcs(
 
 //Convert a multibyte string to a wide string
 #[no_mangle]
-pub extern "C" fn mbsrtowcs(
+pub unsafe extern "C" fn mbsrtowcs(
     dst: *mut wchar_t,
     src: *mut *const c_char,
     len: size_t,
     ps: *mut mbstate_t,
 ) -> size_t {
-    unsafe { mbsnrtowcs(dst, src, size_t::max_value(), len, ps) }
+    mbsnrtowcs(dst, src, size_t::max_value(), len, ps)
 }
 
 #[no_mangle]

@@ -462,7 +462,7 @@ pub unsafe extern "C" fn freopen(
             fclose(stream);
             return ptr::null_mut();
         }
-        let new = unsafe { &mut *new }; // Should be safe, new is not null
+        let new = &mut *new; // Should be safe, new is not null
         if *new.file == *stream.file {
             new.file.fd = -1;
         } else if Sys::dup2(*new.file, *stream.file) < 0

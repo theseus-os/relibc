@@ -51,18 +51,18 @@ pub const REG_BADRPT: c_int = 14;
 
 #[no_mangle]
 #[linkage = "weak"] // redefined in GIT
-pub extern "C" fn regcomp(out: *mut regex_t, pat: *const c_char, cflags: c_int) -> c_int {
+pub unsafe extern "C" fn regcomp(out: *mut regex_t, pat: *const c_char, cflags: c_int) -> c_int {
     if cflags & REG_EXTENDED == REG_EXTENDED {
         return REG_ENOSYS;
     }
 
-    let pat = unsafe { slice::from_raw_parts(pat as *const u8, strlen(pat)) };
+    let pat = slice::from_raw_parts(pat as *const u8, strlen(pat));
     let res = PosixRegexBuilder::new(pat)
         .with_default_classes()
         .compile_tokens();
 
     match res {
-        Ok(mut branches) => unsafe {
+        Ok(mut branches) => {
             let re_nsub = PosixRegex::new(Cow::Borrowed(&branches)).count_groups();
             *out = regex_t {
                 ptr: branches.as_mut_ptr() as *mut c_void,

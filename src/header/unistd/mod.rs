@@ -377,9 +377,9 @@ pub extern "C" fn lchown(path: *const c_char, owner: uid_t, group: gid_t) -> c_i
 }
 
 #[no_mangle]
-pub extern "C" fn link(path1: *const c_char, path2: *const c_char) -> c_int {
-    let path1 = unsafe { CStr::from_ptr(path1) };
-    let path2 = unsafe { CStr::from_ptr(path2) };
+pub unsafe extern "C" fn link(path1: *const c_char, path2: *const c_char) -> c_int {
+    let path1 = CStr::from_ptr(path1);
+    let path2 = CStr::from_ptr(path2);
     Sys::link(path1, path2)
 }
 
@@ -477,15 +477,15 @@ pub extern "C" fn read(fildes: c_int, buf: *const c_void, nbyte: size_t) -> ssiz
 }
 
 #[no_mangle]
-pub extern "C" fn readlink(path: *const c_char, buf: *mut c_char, bufsize: size_t) -> ssize_t {
-    let path = unsafe { CStr::from_ptr(path) };
-    let buf = unsafe { slice::from_raw_parts_mut(buf as *mut u8, bufsize as usize) };
+pub unsafe extern "C" fn readlink(path: *const c_char, buf: *mut c_char, bufsize: size_t) -> ssize_t {
+    let path = CStr::from_ptr(path);
+    let buf = slice::from_raw_parts_mut(buf as *mut u8, bufsize as usize);
     Sys::readlink(path, buf)
 }
 
 #[no_mangle]
-pub extern "C" fn rmdir(path: *const c_char) -> c_int {
-    let path = unsafe { CStr::from_ptr(path) };
+pub unsafe extern "C" fn rmdir(path: *const c_char) -> c_int {
+    let path = CStr::from_ptr(path);
     Sys::rmdir(path)
 }
 
@@ -541,9 +541,9 @@ pub extern "C" fn swab(src: *const c_void, dest: *mut c_void, nbytes: ssize_t) {
 }
 
 #[no_mangle]
-pub extern "C" fn symlink(path1: *const c_char, path2: *const c_char) -> c_int {
-    let path1 = unsafe { CStr::from_ptr(path1) };
-    let path2 = unsafe { CStr::from_ptr(path2) };
+pub unsafe extern "C" fn symlink(path1: *const c_char, path2: *const c_char) -> c_int {
+    let path1 = CStr::from_ptr(path1);
+    let path2 = CStr::from_ptr(path2);
     Sys::symlink(path1, path2)
 }
 
@@ -608,8 +608,8 @@ pub extern "C" fn ttyname_r(fildes: c_int, name: *mut c_char, namesize: size_t) 
 // }
 
 #[no_mangle]
-pub extern "C" fn unlink(path: *const c_char) -> c_int {
-    let path = unsafe { CStr::from_ptr(path) };
+pub unsafe extern "C" fn unlink(path: *const c_char) -> c_int {
+    let path = CStr::from_ptr(path);
     Sys::unlink(path)
 }
 
