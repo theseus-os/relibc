@@ -449,8 +449,8 @@ where
 }
 
 #[no_mangle]
-pub extern "C" fn mktemp(name: *mut c_char) -> *mut c_char {
-    if inner_mktemp(name, 0, || unsafe {
+pub unsafe extern "C" fn mktemp(name: *mut c_char) -> *mut c_char {
+    if inner_mktemp(name, 0, || {
         let name = CStr::from_ptr(name);
         if Sys::access(name, 0) != 0 && platform::errno == ENOENT {
             Some(())
@@ -460,9 +460,7 @@ pub extern "C" fn mktemp(name: *mut c_char) -> *mut c_char {
     })
     .is_none()
     {
-        unsafe {
-            *name = 0;
-        }
+        *name = 0;
     }
     name
 }
@@ -719,12 +717,12 @@ pub fn is_positive(ch: c_char) -> Option<(bool, isize)> {
     }
 }
 
-pub fn detect_base(s: *const c_char) -> Option<(c_int, isize)> {
-    let first = unsafe { *s } as u8;
+pub unsafe fn detect_base(s: *const c_char) -> Option<(c_int, isize)> {
+    let first = *s as u8;
     match first {
         0 => None,
         b'0' => {
-            let second = unsafe { *s.offset(1) } as u8;
+            let second = *s.offset(1) as u8;
             if second == b'X' || second == b'x' {
                 Some((16, 2))
             } else if second >= b'0' && second <= b'7' {
@@ -761,7 +759,7 @@ pub unsafe fn convert_hex(s: *const c_char) -> Option<(c_ulong, isize, bool)> {
     }
 }
 
-pub fn convert_integer(s: *const c_char, base: c_int) -> Option<(c_ulong, isize, bool)> {
+pub unsafe fn convert_integer(s: *const c_char, base: c_int) -> Option<(c_ulong, isize, bool)> {
     // -1 means the character is invalid
     #[cfg_attr(rustfmt, rustfmt_skip)]
     const LOOKUP_TABLE: [c_long; 256] = [
@@ -791,7 +789,7 @@ pub fn convert_integer(s: *const c_char, base: c_int) -> Option<(c_ulong, isize,
         // `-1 as usize` is usize::MAX
         // `-1 as u8 as usize` is u8::MAX
         // It extends by the sign bit unless we cast it to unsigned first.
-        let val = unsafe { LOOKUP_TABLE[*s.offset(idx) as u8 as usize] };
+        let val = LOOKUP_TABLE[*s.offset(idx) as u8 as usize];
         if val == -1 || val as c_int >= base {
             break;
         } else {
@@ -801,9 +799,7 @@ pub fn convert_integer(s: *const c_char, base: c_int) -> Option<(c_ulong, isize,
             {
                 num = res;
             } else {
-                unsafe {
-                    platform::errno = ERANGE;
-                }
+                platform::errno = ERANGE;
                 num = c_ulong::max_value();
                 overflowed = true;
             }

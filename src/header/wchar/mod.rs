@@ -247,7 +247,7 @@ pub extern "C" fn vswprintf(
 
 //widechar to multibyte
 #[no_mangle]
-pub extern "C" fn wcrtomb(s: *mut c_char, wc: wchar_t, ps: *mut mbstate_t) -> size_t {
+pub unsafe extern "C" fn wcrtomb(s: *mut c_char, wc: wchar_t, ps: *mut mbstate_t) -> size_t {
     let mut buffer: [c_char; MB_CUR_MAX as usize] = [0; MB_CUR_MAX as usize];
     let mut wc_cpy = wc;
     let mut s_cpy = s;
@@ -257,7 +257,7 @@ pub extern "C" fn wcrtomb(s: *mut c_char, wc: wchar_t, ps: *mut mbstate_t) -> si
         s_cpy = buffer.as_mut_ptr();
     }
 
-    unsafe { utf8::wcrtomb(s_cpy, wc_cpy, ps) }
+    utf8::wcrtomb(s_cpy, wc_cpy, ps)
 }
 
 // #[no_mangle]

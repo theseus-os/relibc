@@ -400,49 +400,45 @@ pub unsafe extern "C" fn strcasestr(haystack: *const c_char, needle: *const c_ch
 }
 
 #[no_mangle]
-pub extern "C" fn strtok(s1: *mut c_char, delimiter: *const c_char) -> *mut c_char {
+pub unsafe extern "C" fn strtok(s1: *mut c_char, delimiter: *const c_char) -> *mut c_char {
     static mut HAYSTACK: *mut c_char = ptr::null_mut();
-    unsafe {
-        strtok_r(s1, delimiter, &mut HAYSTACK)
-    }
+    strtok_r(s1, delimiter, &mut HAYSTACK)
 }
 
 #[no_mangle]
-pub extern "C" fn strtok_r(
+pub unsafe extern "C" fn strtok_r(
     s: *mut c_char,
     delimiter: *const c_char,
     lasts: *mut *mut c_char,
 ) -> *mut c_char {
     // Loosely based on GLIBC implementation
-    unsafe {
-        let mut haystack = s;
-        if haystack.is_null() {
-            if (*lasts).is_null() {
-                return ptr::null_mut();
-            }
-            haystack = *lasts;
-        }
-
-        // Skip past any extra delimiter left over from previous call
-        haystack = haystack.add(strspn(haystack, delimiter));
-        if *haystack == 0 {
-            *lasts = ptr::null_mut();
+    let mut haystack = s;
+    if haystack.is_null() {
+        if (*lasts).is_null() {
             return ptr::null_mut();
         }
-
-        // Build token by injecting null byte into delimiter
-        let token = haystack;
-        haystack = strpbrk(token, delimiter);
-        if !haystack.is_null() {
-            haystack.write(0);
-            haystack = haystack.add(1);
-            *lasts = haystack;
-        } else {
-            *lasts = ptr::null_mut();
-        }
-
-        token
+        haystack = *lasts;
     }
+
+    // Skip past any extra delimiter left over from previous call
+    haystack = haystack.add(strspn(haystack, delimiter));
+    if *haystack == 0 {
+        *lasts = ptr::null_mut();
+        return ptr::null_mut();
+    }
+
+    // Build token by injecting null byte into delimiter
+    let token = haystack;
+    haystack = strpbrk(token, delimiter);
+    if !haystack.is_null() {
+        haystack.write(0);
+        haystack = haystack.add(1);
+        *lasts = haystack;
+    } else {
+        *lasts = ptr::null_mut();
+    }
+
+    token
 }
 
 #[no_mangle]

@@ -43,8 +43,8 @@ pub extern "C" fn _exit(status: c_int) {
 }
 
 #[no_mangle]
-pub extern "C" fn access(path: *const c_char, mode: c_int) -> c_int {
-    let path = unsafe { CStr::from_ptr(path) };
+pub unsafe extern "C" fn access(path: *const c_char, mode: c_int) -> c_int {
+    let path = CStr::from_ptr(path);
     Sys::access(path, mode)
 }
 
@@ -72,8 +72,8 @@ pub extern "C" fn alarm(seconds: c_uint) -> c_uint {
 }
 
 #[no_mangle]
-pub extern "C" fn chdir(path: *const c_char) -> c_int {
-    let path = unsafe { CStr::from_ptr(path) };
+pub unsafe extern "C" fn chdir(path: *const c_char) -> c_int {
+    let path = CStr::from_ptr(path);
     Sys::chdir(path)
 }
 
@@ -83,8 +83,8 @@ pub extern "C" fn chroot(path: *const c_char) -> c_int {
 }
 
 #[no_mangle]
-pub extern "C" fn chown(path: *const c_char, owner: uid_t, group: gid_t) -> c_int {
-    let path = unsafe { CStr::from_ptr(path) };
+pub unsafe extern "C" fn chown(path: *const c_char, owner: uid_t, group: gid_t) -> c_int {
+    let path = CStr::from_ptr(path);
     Sys::chown(path, owner, group)
 }
 

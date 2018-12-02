@@ -73,8 +73,8 @@ pub struct itimerspec {
 pub struct sigevent;
 
 #[no_mangle]
-pub extern "C" fn asctime(timeptr: *const tm) -> *mut c_char {
-    unsafe { asctime_r(timeptr, transmute::<&mut _, *mut c_char>(&mut ASCTIME)) }
+pub unsafe extern "C" fn asctime(timeptr: *const tm) -> *mut c_char {
+    asctime_r(timeptr, transmute::<&mut _, *mut c_char>(&mut ASCTIME))
 }
 
 #[no_mangle]

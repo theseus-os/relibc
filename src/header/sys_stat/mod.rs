@@ -59,8 +59,8 @@ pub struct stat {
 }
 
 #[no_mangle]
-pub extern "C" fn chmod(path: *const c_char, mode: mode_t) -> c_int {
-    let path = unsafe { CStr::from_ptr(path) };
+pub unsafe extern "C" fn chmod(path: *const c_char, mode: mode_t) -> c_int {
+    let path = CStr::from_ptr(path);
     Sys::chmod(path, mode)
 }
 
@@ -85,8 +85,8 @@ pub extern "C" fn futimens(fd: c_int, times: *const timespec) -> c_int {
 }
 
 #[no_mangle]
-pub extern "C" fn lstat(path: *const c_char, buf: *mut stat) -> c_int {
-    let path = unsafe { CStr::from_ptr(path) };
+pub unsafe extern "C" fn lstat(path: *const c_char, buf: *mut stat) -> c_int {
+    let path = CStr::from_ptr(path);
     let fd = Sys::open(path, O_PATH | O_NOFOLLOW, 0);
     if fd < 0 {
         return -1;
@@ -100,14 +100,14 @@ pub extern "C" fn lstat(path: *const c_char, buf: *mut stat) -> c_int {
 }
 
 #[no_mangle]
-pub extern "C" fn mkdir(path: *const c_char, mode: mode_t) -> c_int {
-    let path = unsafe { CStr::from_ptr(path) };
+pub unsafe extern "C" fn mkdir(path: *const c_char, mode: mode_t) -> c_int {
+    let path = CStr::from_ptr(path);
     Sys::mkdir(path, mode)
 }
 
 #[no_mangle]
-pub extern "C" fn mkfifo(path: *const c_char, mode: mode_t) -> c_int {
-    let path = unsafe { CStr::from_ptr(path) };
+pub unsafe extern "C" fn mkfifo(path: *const c_char, mode: mode_t) -> c_int {
+    let path = CStr::from_ptr(path);
     Sys::mkfifo(path, mode)
 }
 
@@ -117,8 +117,8 @@ pub extern "C" fn mknod(path: *const c_char, mode: mode_t, dev: dev_t) -> c_int 
 }
 
 #[no_mangle]
-pub extern "C" fn stat(file: *const c_char, buf: *mut stat) -> c_int {
-    let file = unsafe { CStr::from_ptr(file) };
+pub unsafe extern "C" fn stat(file: *const c_char, buf: *mut stat) -> c_int {
+    let file = CStr::from_ptr(file);
     let fd = Sys::open(file, O_PATH, 0);
     if fd < 0 {
         return -1;

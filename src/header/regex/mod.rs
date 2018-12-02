@@ -98,7 +98,7 @@ pub unsafe extern "C" fn regfree(regex: *mut regex_t) {
 
 #[no_mangle]
 #[linkage = "weak"] // redefined in GIT
-pub extern "C" fn regexec(
+pub unsafe extern "C" fn regexec(
     regex: *const regex_t,
     input: *const c_char,
     nmatch: size_t,
@@ -109,15 +109,14 @@ pub extern "C" fn regexec(
         return REG_ENOSYS;
     }
 
-    let regex = unsafe { &(*regex) };
+    let regex = &*regex;
 
     // Allow specifying a compiler argument to the executor and vise versa
     // because why not?
     let flags = regex.cflags | eflags;
 
-    let input = unsafe { slice::from_raw_parts(input as *const u8, strlen(input)) };
-    let branches =
-        unsafe { slice::from_raw_parts(regex.ptr as *const Vec<(Token, Range)>, regex.length) };
+    let input = slice::from_raw_parts(input as *const u8, strlen(input));
+    let branches = slice::from_raw_parts(regex.ptr as *const Vec<(Token, Range)>, regex.length);
 
     let matches = PosixRegex::new(Cow::Borrowed(&branches))
         .case_insensitive(flags & REG_ICASE == REG_ICASE)
@@ -131,12 +130,10 @@ pub extern "C" fn regexec(
 
         for i in 0..nmatch as usize {
             let (start, end) = first.get(i).and_then(|&range| range).unwrap_or((!0, !0));
-            unsafe {
-                *pmatch.offset(i as isize) = regmatch_t {
-                    rm_so: start,
-                    rm_eo: end,
-                };
-            }
+            *pmatch.offset(i as isize) = regmatch_t {
+                rm_so: start,
+                rm_eo: end,
+            };
         }
     }
 

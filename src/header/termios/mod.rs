@@ -34,38 +34,38 @@ pub extern "C" fn tcsetattr(fd: c_int, act: c_int, value: *mut termios) -> c_int
 }
 
 #[no_mangle]
-pub extern "C" fn cfgetispeed(termios_p: *const termios) -> speed_t {
-    unsafe { (*termios_p).__c_ispeed }
+pub unsafe extern "C" fn cfgetispeed(termios_p: *const termios) -> speed_t {
+    (*termios_p).__c_ispeed
 }
 
 #[no_mangle]
-pub extern "C" fn cfgetospeed(termios_p: *const termios) -> speed_t {
-    unsafe { (*termios_p).__c_ospeed }
+pub unsafe extern "C" fn cfgetospeed(termios_p: *const termios) -> speed_t {
+    (*termios_p).__c_ospeed
 }
 
 #[no_mangle]
-pub extern "C" fn cfsetispeed(termios_p: *mut termios, speed: speed_t) -> c_int {
+pub unsafe extern "C" fn cfsetispeed(termios_p: *mut termios, speed: speed_t) -> c_int {
     match speed as usize {
         B0..=B38400 | B57600..=B4000000 => {
-            unsafe { (*termios_p).__c_ispeed = speed };
+            (*termios_p).__c_ispeed = speed;
             0
         }
         _ => {
-            unsafe { platform::errno = errno::EINVAL };
+            platform::errno = errno::EINVAL;
             -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn cfsetospeed(termios_p: *mut termios, speed: speed_t) -> c_int {
+pub unsafe extern "C" fn cfsetospeed(termios_p: *mut termios, speed: speed_t) -> c_int {
     match speed as usize {
         B0..=B38400 | B57600..=B4000000 => {
-            unsafe { (*termios_p).__c_ospeed = speed };
+            (*termios_p).__c_ospeed = speed;
             0
         }
         _ => {
-            unsafe { platform::errno = errno::EINVAL };
+            platform::errno = errno::EINVAL;
             -1
         }
     }

@@ -182,7 +182,7 @@ pub unsafe extern "C" fn getpwnam_r(
 }
 
 #[no_mangle]
-pub extern "C" fn getpwuid_r(
+pub unsafe extern "C" fn getpwuid_r(
     uid: uid_t,
     out: *mut passwd,
     buf: *mut c_char,
@@ -196,15 +196,15 @@ pub extern "C" fn getpwuid_r(
             .and_then(|part| part.parse().ok());
         part == Some(uid)
     }) {
-        OptionPasswd::Error => unsafe {
+        OptionPasswd::Error => {
             *result = ptr::null_mut();
             -1
         },
-        OptionPasswd::NotFound => unsafe {
+        OptionPasswd::NotFound => {
             *result = ptr::null_mut();
             0
         },
-        OptionPasswd::Found(_) => unsafe {
+        OptionPasswd::Found(_) => {
             *result = out;
             0
         },
