@@ -21,9 +21,22 @@ pub mod sys;
 
 type SigSet = BitSet<[c_ulong; 1]>;
 
-pub (crate) const SIG_DFL: usize = 0;
-pub (crate) const SIG_IGN: usize = 1;
-pub (crate) const SIG_ERR: isize = -1;
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub enum sighandler_cst {
+    SIG_DFL = 0,
+    SIG_IGN = 1,
+    SIG_ERR = -1,
+}
+pub use sighandler_cst::*;
+
+#[derive(Clone, Copy)]
+#[allow(dead_code)]
+#[repr(C)]
+pub union sighandler_t {
+    cst: sighandler_cst,
+    user_defined: extern "C" fn(c_int),
+}
 
 pub const SIG_BLOCK: c_int = 0;
 pub const SIG_UNBLOCK: c_int = 1;
@@ -32,9 +45,9 @@ pub const SIG_SETMASK: c_int = 2;
 #[repr(C)]
 #[derive(Clone)]
 pub struct sigaction {
-    pub sa_handler: extern "C" fn(c_int),
+    pub sa_handler: sighandler_t,
     pub sa_flags: c_ulong,
-    pub sa_restorer: unsafe extern "C" fn(),
+    pub sa_restorer: Option<unsafe extern "C" fn()>,
     pub sa_mask: sigset_t,
 }
 
@@ -194,17 +207,17 @@ extern "C" {
 }
 
 #[no_mangle]
-pub extern "C" fn signal(sig: c_int, func: extern "C" fn(c_int)) -> extern "C" fn(c_int) {
+pub extern "C" fn signal(sig: c_int, func: sighandler_t) -> sighandler_t {
     let sa = sigaction {
         sa_handler: func,
         sa_flags: SA_RESTART as c_ulong,
-        sa_restorer: __restore_rt,
+        sa_restorer: Some(__restore_rt),
         sa_mask: sigset_t::default(),
     };
     let mut old_sa = unsafe { mem::uninitialized() };
     if unsafe { sigaction(sig, &sa, &mut old_sa) } < 0 {
         mem::forget(old_sa);
-        return unsafe { mem::transmute(SIG_ERR) };
+        return sighandler_t { cst: SIG_ERR };
     }
     old_sa.sa_handler
 }
