@@ -98,6 +98,19 @@ pub unsafe extern "C" fn cfsetospeed(termios_p: *mut termios, speed: speed_t) ->
     }
 }
 
+// Based on glibc/termios/cfmakeraw.c
+#[no_mangle]
+pub unsafe extern "C" fn cfmakeraw(t: *mut termios) {
+    (*t).c_iflag &= !(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
+    (*t).c_oflag &= !OPOST;
+    (*t).c_lflag &= !(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+    (*t).c_cflag &= !(CSIZE|PARENB);
+    (*t).c_cflag |= CS8;
+    // Read returns after each char
+    (*t).c_cc[sys::VMIN] = 1;
+    (*t).c_cc[sys::VTIME] = 0;
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn tcflush(fd: c_int, queue: c_int) -> c_int {
     sys_ioctl::ioctl(fd, sys_ioctl::TCFLSH, queue as *mut c_void)
